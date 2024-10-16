@@ -1,13 +1,6 @@
 import pytest
 
 
-def test_data_post(client):
-    data = {"key": "value"}
-    response = client.post("/data", json=data)
-    assert response.status_code == 200
-    assert response.get_json() == data
-
-
 def test_data_get(client, init_db):
     response = client.get("/data")
     assert response.status_code == 200

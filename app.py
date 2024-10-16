@@ -39,11 +39,14 @@ def create_app(config_class=DevelopmentConfig):
 
         # Set up tracing
         trace.set_tracer_provider(TracerProvider(resource=resource))
-        jaeger_exporter = JaegerExporter(
-            agent_host_name='localhost',  # Change this to your Jaeger agent host
-            agent_port=6831,
-        )
-        trace.get_tracer_provider().add_span_processor(SimpleSpanProcessor(jaeger_exporter))
+        jaeger_config = app.config.get("JAEGER_SETTINGS")
+        if jaeger_config:
+            if jaeger_config.get("enabled", False):
+                jaeger_exporter = JaegerExporter(
+                    agent_host_name=jaeger_config.get("host"),  # Change this to your Jaeger agent host
+                    agent_port=jaeger_config.get("port"),
+                )
+                trace.get_tracer_provider().add_span_processor(SimpleSpanProcessor(jaeger_exporter))
         # Instrument the Flask app
         FlaskInstrumentor().instrument_app(app)
         # Instrument SQLAlchemy with the app context
